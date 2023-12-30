@@ -1,34 +1,51 @@
-const express =  require("express");
-const mongoose = require("mongoose")  //database connect 
-const app =express();
-const product = required("./models/pro")
+// Importing required modules
+const express = require("express");
+const mongoose = require("mongoose");
+const connectDb = require('./config');
+const app = express();
+const product = require("./models/productModels");
 
-// using middleware
-app.use(express.json())
+// Load environment variables from a .env file
+require('dotenv').config();
 
-app.get('/', (req, res) =>{
-    res.send("Hi, I'm Lyka. This is my CRUD API building practice ") 
-})
+// Connect to MongoDB
+connectDb();
 
-// a route for savig data into database system.
-// Using try and catch
+// Event listener for successful MongoDB connection
+mongoose.connection.on("connected", () => {
+  console.log("Connected to MongoDB");
+  startServer();
+});
+
+// Event listener for MongoDB connection errors
+mongoose.connection.on("error", (error) => {
+  console.error("MongoDB connection error:", error);
+});
+
+// Middleware for handling JSON data
+app.use(express.json());
+
+// Route for the home page
+app.get('/', (req, res) => {
+  res.send("Hi, I'm Lyka. This is my CRUD API building practice ");
+});
+
+// Route for saving data into the database system
 app.post("/product", (req, res) => {
-    try {
-
-    } catch(error) {
-        console.log(`Error occured: ${error}`);
-        res.status(500).json({message: error.message})
-    }
+  try {
+    // Your logic for saving data to the database will go here
     console.log(req.body);
     res.send(req.body);
-})
+  } catch (error) {
+    console.error(`Error occurred: ${error}`);
+    res.status(500).json({ message: error.message });
+  }
+});
 
-mongoose.connect("mongodb+srv://admin:lykaedem@crudapi.o9vwgx8.mongodb.net/Node-API?retryWrites=true&w=majority")
-.then(() => {
-    console.log("Connected to MongoDB")
-    app.listen(3000, () =>{
-        console.log('Server is running on port 3000');
-    })
-}).catch((error) => {
-    console.log(error)
-})
+// Function to start the server
+function startServer() {
+  const PORT = 3000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
